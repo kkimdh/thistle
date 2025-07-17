@@ -10,9 +10,28 @@
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
-    "nuxt": "^3.10.3",
-    "vue": "^3.5.17",
-    "vue-router": "^4.5.1"
+    "@nuxtjs/tailwindcss": "^6.12.1",
+    "@primevue/forms": "^4.3.6",
+    "@primevue/themes": "^4.0.7",
+    "dayjs": "^1.11.13",
+    "nuxt": "^3.13.2",
+    "primeicons": "^7.0.0",
+    "primevue": "^4.0.7",
+    "vue": "^3.5.8",
+    "vue-router": "^4.4.5"
+  },
+  "devDependencies": {
+    "@primevue/nuxt-module": "^4.0.7",
+    "eslint": "^8.57.1",
+    "eslint-import-resolver-typescript": "^3.6.3",
+    "eslint-plugin-import": "^2.30.0",
+    "eslint-plugin-unused-imports": "^4.1.4",
+    "eslint-plugin-vue": "^9.28.0",
+    "prettier": "^3.3.3",
+    "prettier-plugin-tailwindcss": "^0.6.8",
+    "sass-embedded": "^1.79.3",
+    "typescript-eslint": "^8.7.0",
+    "vue-eslint-parser": "^9.4.3"
   },
   "packageManager": "pnpm@10.12.4+sha512.5ea8b0deed94ed68691c9bad4c955492705c5eeb8a87ef86bc62c74a26b037b08ff9570f108b2e4dbd1dd1a9186fea925e527f141c648e85af45631074680184"
 }
