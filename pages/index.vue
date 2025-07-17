@@ -1,5 +1,5 @@
 <template>
-  <div>엉겅퀴 배달 관리 시스템 - dev</div>
+  <div>엉겅퀴 배달 관리 시스템</div>
   <!-- <p-button label="버튼" @click="test()"></p-button> -->
 </template>
 
