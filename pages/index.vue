@@ -1,12 +1,12 @@
 <template>
-  <div></div>
-  <p-button label="버튼" @click="test()"></p-button>
+  <div>엉겅퀴 배달 관리 시스템</div>
+  <!-- <p-button label="버튼" @click="test()"></p-button> -->
 </template>
 
 <script setup lang="ts">
-  const { setToastState } = useToastState();
+const { setToastState } = useToastState();
 
-  const test = () => {
-    setToastState("success", "환영합니다");
-  };
+const test = () => {
+  setToastState("success", "환영합니다");
+};
 </script>

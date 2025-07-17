@@ -2,8 +2,10 @@ import Aura from "@primevue/themes/aura";
 
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
+  ssr: true,
   nitro: {
     compatibilityDate: "2025-07-10",
+    preset: "vercel",
   },
   devtools: {
     enabled: false,
@@ -23,7 +25,15 @@ export default defineNuxtConfig({
       },
       locale: {
         fileSizeTypes: ["B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"],
-        dayNames: ["일요일", "월요일", "화요일", "수요일", "목요일", "금요일", "토요일"],
+        dayNames: [
+          "일요일",
+          "월요일",
+          "화요일",
+          "수요일",
+          "목요일",
+          "금요일",
+          "토요일",
+        ],
         dayNamesShort: ["일", "월", "화", "수", "목", "금", "토"],
         dayNamesMin: ["일", "월", "화", "수", "목", "금", "토"],
         monthNames: [
