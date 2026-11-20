@@ -1,7 +1,7 @@
 export type Size = '2-3' | '4-5'
 export type PayMethod = 'card' | 'transfer'
 export type Day = 'mon' | 'wed' | 'fri'
-export type Plan = 'once' | 'w1' | 'w2' | 'w3'
+export type Plan = 'once' | 'w1' | 'w2' | 'w3' | 'count'
 
 export interface Area {
   id: string
@@ -37,6 +37,7 @@ export const PLANS: { key: Plan; label: string; short: string; count: number }[]
   { key: 'w1', label: '주1회 4주', short: '주1회', count: 4 },
   { key: 'w2', label: '주2회 4주', short: '주2회', count: 8 },
   { key: 'w3', label: '주3회 4주', short: '주3회', count: 12 },
+  { key: 'count', label: '횟수제', short: '횟수제', count: 0 },
 ]
 
 export const PAY_LABEL: Record<PayMethod, string> = {
@@ -63,3 +64,54 @@ export const fixedDaysLabel = (days: Day[]) =>
   DAYS.filter((d) => days.includes(d.key))
     .map((d) => d.label)
     .join('·')
+
+export interface Delivery {
+  id: string
+  customer_id: string
+  delivery_date: string
+  kind: 'request' | 'fixed'
+  status: 'planned' | 'skipped' | 'done'
+}
+
+export interface Holiday {
+  day: string
+  reason: string | null
+}
+
+const WEEKDAY_LABELS = ['일', '월', '화', '수', '목', '금', '토']
+const WEEKDAY_KEYS: Record<number, Day> = { 1: 'mon', 3: 'wed', 5: 'fri' }
+
+export const toDateStr = (d: Date) => {
+  const mm = String(d.getMonth() + 1).padStart(2, '0')
+  const dd = String(d.getDate()).padStart(2, '0')
+  return `${d.getFullYear()}-${mm}-${dd}`
+}
+
+export const fromDateStr = (s: string) => {
+  const [y, m, d] = s.split('-').map(Number)
+  return new Date(y!, m! - 1, d!)
+}
+
+export const addDays = (s: string, n: number) => {
+  const d = fromDateStr(s)
+  d.setDate(d.getDate() + n)
+  return toDateStr(d)
+}
+
+export const weekdayKey = (s: string): Day | null => WEEKDAY_KEYS[fromDateStr(s).getDay()] ?? null
+
+export const dateLabel = (s: string) => `${formatMD(s)} (${WEEKDAY_LABELS[fromDateStr(s).getDay()]})`
+
+export const mondayOf = (s: string) => {
+  const d = fromDateStr(s)
+  d.setDate(d.getDate() - ((d.getDay() + 6) % 7))
+  return toDateStr(d)
+}
+
+export const weekDeliveryDates = (monday: string) => [monday, addDays(monday, 2), addDays(monday, 4)]
+
+export const nextDeliveryDate = (s: string) => {
+  let d = s
+  while (!weekdayKey(d)) d = addDays(d, 1)
+  return d
+}

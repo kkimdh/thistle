@@ -8,7 +8,9 @@
       <div class="max-h-[92dvh] w-full overflow-y-auto rounded-t-2xl bg-white shadow-xl sm:max-w-xl sm:rounded-2xl">
         <div class="px-5 pb-3 pt-5">
           <h2 class="text-xl font-bold">{{ title }}</h2>
-          <p v-if="description" class="mt-1 whitespace-pre-line text-sm text-stone-600">{{ description }}</p>
+          <slot name="description">
+            <p v-if="description" class="mt-1 whitespace-pre-line text-sm text-stone-600">{{ description }}</p>
+          </slot>
         </div>
         <div class="flex flex-col gap-4 px-5 pb-4">
           <slot />

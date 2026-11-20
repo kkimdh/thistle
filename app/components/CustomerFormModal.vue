@@ -28,15 +28,10 @@
         <input v-model="form.door_code" type="text" placeholder="예: #1234*" class="h-11 rounded-lg border border-stone-300 px-3 text-[15px]" />
       </label>
       <label class="flex flex-col gap-1.5 text-sm font-medium">
-        이름 <span class="text-xs font-normal text-stone-500">검색용 (선택)</span>
-        <input v-model="form.memo" type="text" class="h-11 rounded-lg border border-stone-300 px-3 text-[15px]" />
+        특이사항 <span class="text-xs font-normal text-stone-500">국 빼기·알레르기 등 · 리스트·워드에 표시</span>
+        <input v-model="form.note" type="text" placeholder="예: 국 빼기" class="h-11 rounded-lg border border-stone-300 px-3 text-[15px]" />
       </label>
     </div>
-
-    <label class="flex flex-col gap-1.5 text-sm font-medium">
-      특이사항 <span class="text-xs font-normal text-stone-500">국 빼기·알레르기 등 · 배달 리스트·워드에 표시</span>
-      <textarea v-model="form.note" rows="2" class="resize-none rounded-lg border border-stone-300 px-3 py-2.5 text-[15px]" />
-    </label>
 
     <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
       <div class="flex flex-col gap-1.5 text-sm font-medium">
@@ -64,12 +59,17 @@
     <div class="flex flex-col gap-1.5 text-sm font-medium">
       신청{{ isEdit ? '' : ' *' }}
       <span v-if="isEdit" class="text-xs font-normal text-stone-500">바꿔도 잔여 횟수는 그대로</span>
-      <div class="grid grid-cols-2 gap-1.5 sm:grid-cols-4">
+      <div class="grid grid-cols-2 gap-1.5 sm:grid-cols-5">
         <button v-for="plan in PLANS" :key="plan.key" type="button" :class="optClass(form.plan === plan.key)" @click="form.plan = plan.key">
           {{ isEdit ? plan.short : plan.label }}<span v-if="!isEdit && plan.count > 1" class="block text-xs font-normal">{{ plan.count }}회</span>
         </button>
       </div>
     </div>
+
+    <label v-if="!isEdit && form.plan === 'count'" class="flex flex-col gap-1.5 text-sm font-medium">
+      결제 횟수 <span class="text-xs font-normal text-stone-500">요일 안 정하고 한 번에 결제한 횟수</span>
+      <input v-model="form.count" type="number" min="1" inputmode="numeric" class="h-11 w-40 rounded-lg border border-stone-300 px-3 text-[15px]" />
+    </label>
 
     <div class="grid grid-cols-1 gap-3" :class="isEdit ? 'sm:grid-cols-3' : 'sm:grid-cols-2'">
       <label v-if="isEdit" class="flex flex-col gap-1.5 text-sm font-medium">
@@ -135,6 +135,7 @@ const form = reactive({
   own_bowl: false,
   fixed_days: [] as Day[],
   plan: 'w2' as Plan | '',
+  count: 12 as number | string,
   remaining: '' as string | number,
   last_paid_on: '',
   pay_method: 'card' as PayMethod,
@@ -151,6 +152,7 @@ const reset = () => {
   form.own_bowl = c?.own_bowl ?? false
   form.fixed_days = c ? [...c.fixed_days] : []
   form.plan = c ? c.plan ?? '' : 'w2'
+  form.count = 12
   form.remaining = c?.remaining ?? ''
   form.last_paid_on = c ? c.last_paid_on ?? '' : todayStr()
   form.pay_method = c?.pay_method ?? 'card'
@@ -174,7 +176,7 @@ const toggleDay = (day: Day) => {
   form.fixed_days = form.fixed_days.includes(day) ? form.fixed_days.filter((d) => d !== day) : [...form.fixed_days, day]
 }
 
-const planCount = computed(() => PLANS.find((p) => p.key === form.plan)?.count ?? 0)
+const planCount = computed(() => (form.plan === 'count' ? Number(form.count) || 0 : PLANS.find((p) => p.key === form.plan)?.count ?? 0))
 
 const summary = computed(() => {
   const days = fixedDaysLabel(form.fixed_days)
@@ -188,6 +190,10 @@ const save = async () => {
   }
   if (!isEdit.value && !form.plan) {
     errorMsg.value = '신청 선택 필수'
+    return
+  }
+  if (!isEdit.value && planCount.value < 1) {
+    errorMsg.value = '결제 횟수는 1 이상'
     return
   }
   const remainingValue = form.remaining === '' || form.remaining === null ? null : Number(form.remaining)
