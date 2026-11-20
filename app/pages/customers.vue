@@ -61,7 +61,7 @@
       <div
         class="hidden overflow-x-auto rounded-xl border border-stone-200 bg-white md:block"
       >
-        <table class="w-full text-sm">
+        <table class="w-full whitespace-nowrap text-sm">
           <thead class="bg-stone-50 text-left text-[13px] text-stone-500">
             <tr>
               <th class="px-3 py-2.5 font-medium">동네</th>
@@ -86,7 +86,7 @@
               <td class="px-3 py-3 text-stone-600">
                 {{ areaName(c.area_id) }}
               </td>
-              <td class="px-3 py-3">
+              <td class="min-w-56 whitespace-normal break-keep px-3 py-3">
                 <b class="text-[15px]">{{ c.address }}</b>
                 <div
                   v-if="c.note"
@@ -115,19 +115,19 @@
                 <CustomerTags :size="c.size" :own-bowl="c.own_bowl" />
               </td>
               <td class="px-3 py-3">
-                <div v-if="c.remaining === null" class="flex items-center gap-1.5">
+                <div v-if="c.remaining === null" class="flex items-center gap-1 whitespace-nowrap">
                   <input
                     v-model="drafts[c.id]"
                     type="number"
                     min="0"
                     inputmode="numeric"
                     placeholder="횟수"
-                    class="h-9 w-20 rounded-lg border-2 border-amber-400 px-2"
+                    class="h-8 w-12 rounded-md border border-amber-400 px-1.5 text-sm"
                     @keyup.enter="saveRemaining(c)"
                   />
                   <button
                     type="button"
-                    class="h-9 rounded-lg bg-stone-900 px-3 text-xs font-bold text-white disabled:opacity-40"
+                    class="h-8 rounded-md bg-stone-900 px-2 text-xs font-bold text-white disabled:opacity-40"
                     :disabled="savingId === c.id"
                     @click="saveRemaining(c)"
                   >

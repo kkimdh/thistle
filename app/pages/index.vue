@@ -7,12 +7,14 @@
       <button type="button" class="h-11 rounded-lg bg-forest-600 px-4 font-bold text-white disabled:opacity-40" :disabled="isHoliday" @click="requestOpen = true">+ 배달 신청</button>
     </div>
 
-    <div class="no-scrollbar flex items-stretch gap-1.5 overflow-x-auto">
+    <div class="flex items-stretch gap-1.5">
       <button type="button" aria-label="이전 주" class="w-10 shrink-0 rounded-lg border border-stone-300 bg-white text-lg" @click="moveWeek(-7)">‹</button>
-      <button v-for="d in dateTabs" :key="d.date" type="button" :class="dateClass(d)" @click="selectDate(d.date)">
-        <b class="text-[15px]" :class="d.holiday ? 'line-through' : ''">{{ d.label }}</b>
-        <span class="text-xs">{{ d.sub }}</span>
-      </button>
+      <div ref="dateScroller" class="no-scrollbar flex min-w-0 flex-1 items-stretch gap-1.5 overflow-x-auto">
+        <button v-for="d in dateTabs" :key="d.date" type="button" :data-date="d.date" :class="dateClass(d)" @click="selectDate(d.date)">
+          <b class="text-[15px]" :class="d.holiday ? 'line-through' : ''">{{ d.label }}</b>
+          <span class="text-xs">{{ d.sub }}</span>
+        </button>
+      </div>
       <button type="button" aria-label="다음 주" class="w-10 shrink-0 rounded-lg border border-stone-300 bg-white text-lg" @click="moveWeek(7)">›</button>
     </div>
 
@@ -54,7 +56,7 @@
       </div>
 
       <div class="hidden overflow-x-auto rounded-xl border border-stone-200 bg-white md:block">
-        <table class="w-full text-sm">
+        <table class="w-full whitespace-nowrap text-sm">
           <thead class="bg-stone-50 text-left text-[13px] text-stone-500">
             <tr>
               <th class="w-12 px-3 py-2.5 font-medium">선택</th>
@@ -76,7 +78,7 @@
                 </button>
               </td>
               <td class="px-3 py-2.5 text-stone-600">{{ areaName(r.c.area_id) }}</td>
-              <td class="px-3 py-2.5">
+              <td class="min-w-56 whitespace-normal break-keep px-3 py-2.5">
                 <b class="text-[15px]">{{ r.c.address }}</b>
                 <div v-if="r.c.note" class="mt-1 inline-block whitespace-pre-line rounded-md bg-amber-50 px-2 py-0.5 text-[13px] text-amber-900 ml-2">{{ r.c.note }}</div>
               </td>
@@ -332,6 +334,16 @@ const allSelected = computed(() => visibleRows.value.length > 0 && visibleRows.v
 watch([selectedDate, areaFilter], () => {
   selected.value = []
 })
+
+const dateScroller = ref<HTMLElement | null>(null)
+
+const scrollToSelected = async () => {
+  await nextTick()
+  const el = dateScroller.value?.querySelector<HTMLElement>(`[data-date="${selectedDate.value}"]`)
+  el?.scrollIntoView({ inline: 'nearest', block: 'nearest', behavior: 'smooth' })
+}
+
+watch([selectedDate, loading], scrollToSelected)
 
 const selectDate = (date: string) => {
   selectedDate.value = date
