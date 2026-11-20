@@ -1,6 +1,7 @@
 export type Size = '2-3' | '4-5'
 export type PayMethod = 'card' | 'transfer'
 export type Day = 'mon' | 'wed' | 'fri'
+export type Plan = 'once' | 'w1' | 'w2' | 'w3'
 
 export interface Area {
   id: string
@@ -11,6 +12,7 @@ export interface Area {
 export interface Customer {
   id: string
   area_id: string
+  sort_order: number | null
   address: string
   door_code: string | null
   memo: string | null
@@ -18,6 +20,7 @@ export interface Customer {
   size: Size
   own_bowl: boolean
   fixed_days: Day[]
+  plan: Plan | null
   remaining: number | null
   last_paid_on: string | null
   pay_method: PayMethod | null
@@ -29,17 +32,19 @@ export const DAYS: { key: Day; label: string }[] = [
   { key: 'fri', label: '금' },
 ]
 
-export const PLANS = [
-  { key: 'once', label: '1회 배송', count: 1 },
-  { key: 'w1', label: '주1회 4주', count: 4 },
-  { key: 'w2', label: '주2회 4주', count: 8 },
-  { key: 'w3', label: '주3회 4주', count: 12 },
+export const PLANS: { key: Plan; label: string; short: string; count: number }[] = [
+  { key: 'once', label: '1회 배송', short: '1회 배송', count: 1 },
+  { key: 'w1', label: '주1회 4주', short: '주1회', count: 4 },
+  { key: 'w2', label: '주2회 4주', short: '주2회', count: 8 },
+  { key: 'w3', label: '주3회 4주', short: '주3회', count: 12 },
 ]
 
 export const PAY_LABEL: Record<PayMethod, string> = {
   card: '카드',
   transfer: '계좌이체',
 }
+
+export const planLabel = (plan: Plan | null) => PLANS.find((p) => p.key === plan)?.short ?? '-'
 
 export const todayStr = () => {
   const d = new Date()

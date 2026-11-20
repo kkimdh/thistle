@@ -27,7 +27,7 @@
       <p class="text-base">잔여 {{ current }}회 + {{ addCount }}회 = <b class="text-xl">{{ current + addCount }}회</b></p>
       <p v-if="restartText" class="mt-1 text-sm">{{ restartText }}</p>
     </div>
-    <p class="text-xs text-stone-500">주소·사이즈·그릇·고정 요일은 그대로 · 바꾸려면 [수정]</p>
+    <p class="text-xs text-stone-500">고른 신청이 고객 정보에 저장됨 · 주소·사이즈·그릇·고정 요일은 그대로</p>
     <p v-if="errorMsg" class="text-sm font-bold text-red-700">{{ errorMsg }}</p>
 
     <template #footer>
@@ -38,13 +38,13 @@
 </template>
 
 <script setup lang="ts">
-import type { Customer, PayMethod } from '~/utils/thistle'
+import type { Customer, PayMethod, Plan } from '~/utils/thistle'
 
 const props = defineProps<{ open: boolean; customer: Customer | null }>()
 const emit = defineEmits<{ close: []; saved: [] }>()
 const supabase = useSupabaseClient<any>()
 
-const plan = ref('w2')
+const plan = ref<Plan>('w2')
 const paidOn = ref(todayStr())
 const payMethod = ref<PayMethod>('card')
 const saving = ref(false)
@@ -54,7 +54,7 @@ watch(
   () => props.open,
   (isOpen) => {
     if (!isOpen) return
-    plan.value = 'w2'
+    plan.value = props.customer?.plan ?? 'w2'
     paidOn.value = todayStr()
     payMethod.value = props.customer?.pay_method ?? 'card'
     errorMsg.value = ''
@@ -91,6 +91,7 @@ const save = async () => {
     .from('customers')
     .update({
       remaining: current.value + addCount.value,
+      plan: plan.value,
       last_paid_on: paidOn.value || null,
       pay_method: paidOn.value ? payMethod.value : null,
       updated_at: new Date().toISOString(),
