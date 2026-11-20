@@ -17,16 +17,22 @@
             {{ menu.label }}
           </NuxtLink>
         </nav>
-        <button type="button" class="ml-auto rounded-lg px-3 py-2 text-sm text-forest-100" @click="logout">로그아웃</button>
+        <div class="ml-auto flex items-center gap-1">
+          <button type="button" class="hidden rounded-lg border border-forest-400 px-3 py-2 text-sm text-white sm:block" @click="backupOpen = true">엑셀 백업</button>
+          <button type="button" class="rounded-lg px-3 py-2 text-sm text-forest-100" @click="logout">로그아웃</button>
+        </div>
       </div>
     </header>
     <slot />
+    <BackupModal :open="backupOpen" @close="backupOpen = false" />
   </div>
 </template>
 
 <script setup lang="ts">
 const route = useRoute()
 const supabase = useSupabaseClient<any>()
+
+const backupOpen = ref(false)
 
 const menus = [
   { to: '/', label: '배달 리스트' },

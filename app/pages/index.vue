@@ -48,7 +48,7 @@
         <span class="ml-auto hidden text-sm text-stone-500 lg:inline">{{ summary }}</span>
         <div class="hidden gap-2 md:flex">
           <button type="button" class="h-10 rounded-lg bg-forest-600 px-4 font-bold text-white disabled:opacity-40" :disabled="!completeTargets.length" @click="confirmOpen = true">배달 완료 처리</button>
-          <button type="button" class="h-10 rounded-lg border border-forest-600 px-4 font-bold text-forest-700 opacity-50" disabled title="다음 단계에서 연결">워드로 출력</button>
+          <button type="button" class="h-10 rounded-lg border border-forest-600 px-4 font-bold text-forest-700 disabled:opacity-40" :disabled="!printRows.length" @click="downloadWord">{{ wordLabel }}</button>
         </div>
       </div>
 
@@ -138,7 +138,7 @@
 
     <div v-if="!isHoliday" class="fixed inset-x-0 bottom-0 z-30 grid grid-cols-2 gap-2 border-t border-stone-200 bg-white px-3 pb-6 pt-3 md:hidden">
       <button type="button" class="h-12 rounded-xl bg-forest-600 font-bold text-white disabled:opacity-40" :disabled="!completeTargets.length" @click="confirmOpen = true">배달 완료 {{ completeTargets.length || '' }}</button>
-      <button type="button" class="h-12 rounded-xl border border-forest-600 font-bold text-forest-700 opacity-50" disabled>워드로 출력</button>
+      <button type="button" class="h-12 rounded-xl border border-forest-600 font-bold text-forest-700 disabled:opacity-40" :disabled="!printRows.length" @click="downloadWord">워드로 출력</button>
     </div>
 
     <div v-if="toast" class="fixed inset-x-3 bottom-24 z-40 mx-auto flex max-w-md items-center gap-3 rounded-xl bg-stone-900 px-4 py-3 text-sm text-white md:bottom-8">
@@ -507,6 +507,33 @@ const boxClass = (on: boolean) => [
   'flex size-5 items-center justify-center rounded border-2 text-xs text-white',
   on ? 'border-forest-600 bg-forest-600' : 'border-stone-400 bg-white',
 ]
+
+const printRows = computed(() =>
+  selected.value.length ? visibleRows.value.filter((r) => selected.value.includes(r.c.id)) : visibleRows.value,
+)
+
+const wordLabel = computed(() => {
+  if (selected.value.length) return `선택한 ${selected.value.length}곳 워드로 출력`
+  if (areaFilter.value !== 'all') return `${areaName(areaFilter.value)} 워드로 출력`
+  return '동네별 워드로 출력'
+})
+
+const downloadWord = async () => {
+  const rows = printRows.value
+  if (!rows.length) return
+  const groups = areas.value
+    .map((a) => ({ name: a.name, items: rows.filter((r) => r.c.area_id === a.id).map((r) => r.c) }))
+    .filter((g) => g.items.length)
+  try {
+    for (const g of groups) {
+      const blob = await buildDeliveryDoc(g.items)
+      downloadBlob(blob, `${g.name}.docx`)
+      await new Promise((resolve) => setTimeout(resolve, 400))
+    }
+  } catch (e: any) {
+    showToast(`워드 만들기 실패 · ${e.message}`)
+  }
+}
 
 const rowBg = (r: Row) => (r.c.remaining === 1 && !r.done ? 'bg-red-50/60' : selected.value.includes(r.c.id) ? 'bg-forest-50' : '')
 </script>
