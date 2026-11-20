@@ -14,6 +14,7 @@ export default defineNuxtConfig({
           content: "width=device-width, initial-scale=1, viewport-fit=cover",
         },
         { name: "color-scheme", content: "light" },
+        { name: "mobile-web-app-capable", content: "yes" },
         { name: "apple-mobile-web-app-capable", content: "yes" },
         { name: "apple-mobile-web-app-title", content: "엉겅퀴" },
         { name: "apple-mobile-web-app-status-bar-style", content: "default" },
@@ -26,6 +27,9 @@ export default defineNuxtConfig({
   },
   pwa: {
     registerType: "autoUpdate",
+    workbox: {
+      navigateFallback: null,
+    },
     manifest: {
       name: "엉겅퀴",
       short_name: "엉겅퀴",
