@@ -14,7 +14,7 @@
 </template>
 
 <script setup lang="ts">
-const supabase = useSupabaseClient()
+const supabase = useSupabaseClient<any>()
 const userId = ref('')
 
 onMounted(async () => {

@@ -20,7 +20,7 @@
 </template>
 
 <script setup lang="ts">
-const supabase = useSupabaseClient()
+const supabase = useSupabaseClient<any>()
 const loading = ref(false)
 const errorMsg = ref('')
 

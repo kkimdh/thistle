@@ -7,7 +7,7 @@ export default defineNuxtRouteMiddleware(async (to) => {
 
   const allowed = useState<boolean | null>('allowed', () => null)
   if (allowed.value === null) {
-    const supabase = useSupabaseClient()
+    const supabase = useSupabaseClient<any>()
     const { data } = await supabase.rpc('is_allowed')
     allowed.value = data === true
   }
