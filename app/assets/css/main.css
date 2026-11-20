@@ -1,0 +1,36 @@
+@import "tailwindcss";
+@import "@nuxt/ui";
+
+@theme static {
+  --color-forest-50: #f1f7f3;
+  --color-forest-100: #e4efe8;
+  --color-forest-200: #c9ddd0;
+  --color-forest-300: #9db8a8;
+  --color-forest-400: #6f8c7c;
+  --color-forest-500: #3f7a5c;
+  --color-forest-600: #2f6b4f;
+  --color-forest-700: #1f5a3d;
+  --color-forest-800: #1f4a36;
+  --color-forest-900: #1f3a2e;
+  --color-forest-950: #14261e;
+}
+
+html,
+body {
+  overscroll-behavior: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+nav a,
+button {
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.no-scrollbar {
+  scrollbar-width: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}

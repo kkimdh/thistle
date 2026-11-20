@@ -1,72 +1,53 @@
-import Aura from "@primevue/themes/aura";
-
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
-  ssr: true,
-  nitro: {
-    compatibilityDate: "2025-07-10",
-    preset: "vercel",
-  },
-  devtools: {
-    enabled: false,
-  },
-  modules: ["@nuxtjs/tailwindcss", "@primevue/nuxt-module"],
-  primevue: {
-    autoImport: false,
-    components: {
-      prefix: "P",
-    },
-    options: {
-      theme: {
-        preset: Aura,
-        options: {
-          darkModeSelector: ".my-app-dark",
+  devServer: { port: 3002 },
+  modules: ["@nuxt/ui", "@nuxtjs/supabase", "@vite-pwa/nuxt", "@pinia/nuxt"],
+  css: ["~/assets/css/main.css"],
+  compatibilityDate: "2025-07-15",
+  devtools: { enabled: false },
+  app: {
+    head: {
+      title: "엉겅퀴",
+      meta: [
+        {
+          name: "viewport",
+          content: "width=device-width, initial-scale=1, viewport-fit=cover",
         },
-      },
-      locale: {
-        fileSizeTypes: ["B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"],
-        dayNames: [
-          "일요일",
-          "월요일",
-          "화요일",
-          "수요일",
-          "목요일",
-          "금요일",
-          "토요일",
-        ],
-        dayNamesShort: ["일", "월", "화", "수", "목", "금", "토"],
-        dayNamesMin: ["일", "월", "화", "수", "목", "금", "토"],
-        monthNames: [
-          "1월",
-          "2월",
-          "3월",
-          "4월",
-          "5월",
-          "6월",
-          "7월",
-          "8월",
-          "9월",
-          "10월",
-          "11월",
-          "12월",
-        ],
-        monthNamesShort: [
-          "1월",
-          "2월",
-          "3월",
-          "4월",
-          "5월",
-          "6월",
-          "7월",
-          "8월",
-          "9월",
-          "10월",
-          "11월",
-          "12월",
-        ],
-      },
+        { name: "color-scheme", content: "light" },
+        { name: "apple-mobile-web-app-capable", content: "yes" },
+        { name: "apple-mobile-web-app-title", content: "엉겅퀴" },
+        { name: "apple-mobile-web-app-status-bar-style", content: "default" },
+      ],
+      link: [
+        { rel: "icon", type: "image/png", href: "/favicon-32x32.png" },
+        { rel: "apple-touch-icon", href: "/apple-touch-icon.png" },
+      ],
     },
   },
-  css: ["primeicons/primeicons.css"],
-  plugins: ["~/plugins/primevue-toast.ts"],
+  pwa: {
+    registerType: "autoUpdate",
+    manifest: {
+      name: "엉겅퀴",
+      short_name: "엉겅퀴",
+      display: "standalone",
+      start_url: "/",
+      theme_color: "#1F3A2E",
+      background_color: "#1F3A2E",
+      icons: [
+        { src: "/pwa-192x192.png", sizes: "192x192", type: "image/png" },
+        { src: "/pwa-512x512.png", sizes: "512x512", type: "image/png" },
+      ],
+    },
+  },
+  supabase: {
+    types: false,
+    redirect: true,
+    redirectOptions: {
+      login: "/login",
+      callback: "/confirm",
+    },
+  },
+  ui: {
+    colorMode: false,
+  },
 });
