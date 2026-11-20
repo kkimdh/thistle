@@ -39,6 +39,13 @@
       </button>
     </div>
 
+    <p
+      v-if="remainError"
+      class="rounded-lg border border-red-200 bg-red-50 px-4 py-2.5 text-sm font-bold text-red-700"
+    >
+      {{ remainError }}
+    </p>
+
     <p v-if="loading" class="py-10 text-center text-stone-500">불러오는 중…</p>
     <p v-else-if="loadError" class="py-10 text-center font-bold text-red-700">
       {{ loadError }}
@@ -107,7 +114,28 @@
               <td class="px-3 py-3">
                 <CustomerTags :size="c.size" :own-bowl="c.own_bowl" />
               </td>
-              <td class="px-3 py-3"><RemainBadge :value="c.remaining" /></td>
+              <td class="px-3 py-3">
+                <div v-if="c.remaining === null" class="flex items-center gap-1.5">
+                  <input
+                    v-model="drafts[c.id]"
+                    type="number"
+                    min="0"
+                    inputmode="numeric"
+                    placeholder="횟수"
+                    class="h-9 w-20 rounded-lg border-2 border-amber-400 px-2"
+                    @keyup.enter="saveRemaining(c)"
+                  />
+                  <button
+                    type="button"
+                    class="h-9 rounded-lg bg-stone-900 px-3 text-xs font-bold text-white disabled:opacity-40"
+                    :disabled="savingId === c.id"
+                    @click="saveRemaining(c)"
+                  >
+                    저장
+                  </button>
+                </div>
+                <RemainBadge v-else :value="c.remaining" />
+              </td>
               <td class="px-3 py-3">{{ paidLabel(c) }}</td>
               <td class="px-3 py-3">
                 <div class="flex justify-end gap-1.5">
@@ -175,7 +203,33 @@
                 >
               </div>
             </div>
-            <RemainBadge :value="c.remaining" prefix="잔여 " />
+            <RemainBadge
+              v-if="c.remaining !== null"
+              :value="c.remaining"
+              prefix="잔여 "
+            />
+          </div>
+          <div
+            v-if="c.remaining === null"
+            class="mt-2 flex items-center gap-1.5"
+          >
+            <input
+              v-model="drafts[c.id]"
+              type="number"
+              min="0"
+              inputmode="numeric"
+              placeholder="잔여 횟수"
+              class="h-10 w-28 rounded-lg border-2 border-amber-400 px-2 text-base"
+              @keyup.enter="saveRemaining(c)"
+            />
+            <button
+              type="button"
+              class="h-10 rounded-lg bg-stone-900 px-3 text-sm font-bold text-white disabled:opacity-40"
+              :disabled="savingId === c.id"
+              @click="saveRemaining(c)"
+            >
+              저장
+            </button>
           </div>
           <div class="mt-2 flex items-center gap-1.5">
             <span class="mr-auto text-xs text-stone-500"
@@ -238,7 +292,12 @@ const loadError = ref("");
 
 const keyword = ref("");
 const areaFilter = ref("all");
-const stateFilter = ref<StateFilter>("none");
+const stateFilter = ref<StateFilter>(
+  useRoute().query.state === "empty" ? "empty" : "none",
+);
+const drafts = reactive<Record<string, string | number>>({});
+const savingId = ref("");
+const remainError = ref("");
 
 const formOpen = ref(false);
 const editing = ref<Customer | null>(null);
@@ -359,6 +418,28 @@ const openEdit = (c: Customer) => {
 const openAdd = (c: Customer) => {
   adding.value = c;
   addOpen.value = true;
+};
+
+const saveRemaining = async (c: Customer) => {
+  const raw = drafts[c.id];
+  const n = Number(raw);
+  if (raw === undefined || raw === "" || !Number.isInteger(n) || n < 0) {
+    remainError.value = `${c.address} · 잔여 횟수는 0 이상 숫자로 입력`;
+    return;
+  }
+  remainError.value = "";
+  savingId.value = c.id;
+  const { error } = await supabase
+    .from("customers")
+    .update({ remaining: n, updated_at: new Date().toISOString() })
+    .eq("id", c.id);
+  savingId.value = "";
+  if (error) {
+    remainError.value = `${c.address} · 저장 실패 · ${error.message}`;
+    return;
+  }
+  delete drafts[c.id];
+  c.remaining = n;
 };
 
 const onSaved = async () => {

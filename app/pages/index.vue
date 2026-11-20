@@ -37,7 +37,8 @@
         <NuxtLink to="/customers" class="font-bold underline">고객 관리에서 횟수 추가</NuxtLink>
       </div>
       <div v-if="missingCount" class="rounded-lg border border-amber-300 bg-amber-50 px-4 py-2.5 text-sm text-amber-900">
-        잔여 횟수 미입력 <b>{{ missingCount }}곳</b> · 처음 한 번만 입력
+        잔여 횟수 미입력 <b>{{ missingCount }}곳</b> · 미입력이면 완료 처리 안 됨 ·
+        <NuxtLink to="/customers?state=empty" class="font-bold underline">고객 관리에서 입력</NuxtLink>
       </div>
 
       <div class="flex flex-wrap items-center gap-2 rounded-xl border border-stone-200 bg-white px-3 py-2.5">
@@ -82,13 +83,7 @@
               <td class="px-3 py-2.5"><span :class="kindClass(r)">{{ kindLabel(r) }}</span></td>
               <td class="px-3 py-2.5">{{ r.c.door_code || '-' }}</td>
               <td class="px-3 py-2.5"><CustomerTags :size="r.c.size" :own-bowl="r.c.own_bowl" /></td>
-              <td class="px-3 py-2.5">
-                <div v-if="r.c.remaining === null" class="flex items-center gap-1.5">
-                  <input v-model="drafts[r.c.id]" type="number" min="1" inputmode="numeric" placeholder="횟수" class="h-9 w-20 rounded-lg border-2 border-amber-400 px-2" />
-                  <button type="button" class="h-9 rounded-lg bg-stone-900 px-3 text-xs font-bold text-white" @click="saveRemaining(r.c)">저장</button>
-                </div>
-                <RemainBadge v-else :value="r.c.remaining" />
-              </td>
+              <td class="px-3 py-2.5"><RemainBadge :value="r.c.remaining" /></td>
               <td class="px-3 py-2.5">
                 <span v-if="r.done" class="inline-flex h-9 items-center rounded-lg bg-forest-50 px-3 font-bold text-forest-700">✓ 완료</span>
                 <button v-else type="button" class="h-9 rounded-lg border border-forest-600 px-4 font-bold text-forest-700 disabled:opacity-40" :disabled="!canComplete(r)" @click="completeOne(r)">완료</button>
@@ -116,11 +111,7 @@
             <div class="flex flex-wrap items-center gap-1.5">
               <span :class="kindClass(r)">{{ kindLabel(r) }}</span>
               <CustomerTags :size="r.c.size" :own-bowl="r.c.own_bowl" />
-              <RemainBadge v-if="r.c.remaining !== null" :value="r.c.remaining" prefix="잔여 " />
-            </div>
-            <div v-if="r.c.remaining === null" class="flex items-center gap-1.5">
-              <input v-model="drafts[r.c.id]" type="number" min="1" inputmode="numeric" placeholder="잔여 횟수" class="h-10 w-28 rounded-lg border-2 border-amber-400 px-2 text-base" />
-              <button type="button" class="h-10 rounded-lg bg-stone-900 px-3 text-sm font-bold text-white" @click="saveRemaining(r.c)">저장</button>
+              <RemainBadge :value="r.c.remaining" prefix="잔여 " />
             </div>
             <button type="button" class="self-start text-xs text-stone-500 underline" @click="rowAction(r)">{{ rowActionLabel(r) }}</button>
           </div>
@@ -210,7 +201,6 @@ const selectedDate = ref(nextDeliveryDate(today))
 const weekStart = computed(() => mondayOf(selectedDate.value))
 const areaFilter = ref('all')
 const selected = ref<string[]>([])
-const drafts = reactive<Record<string, string | number>>({})
 
 const confirmOpen = ref(false)
 const holidayOpen = ref(false)
@@ -433,21 +423,6 @@ const rowAction = async (r: Row) => {
   }
   await reload(false)
   showToast(r.kind === 'request' ? `${r.c.address} 신청 취소 · 차감 없음` : `${r.c.address} 이번만 빼기 · 차감 없음`)
-}
-
-const saveRemaining = async (c: Customer) => {
-  const n = Number(drafts[c.id])
-  if (!Number.isInteger(n) || n < 1) {
-    showToast('잔여 횟수는 1 이상 숫자')
-    return
-  }
-  const { error } = await supabase.from('customers').update({ remaining: n, updated_at: new Date().toISOString() }).eq('id', c.id)
-  if (error) {
-    showToast(`저장 실패 · ${error.message}`)
-    return
-  }
-  delete drafts[c.id]
-  await reload(true)
 }
 
 const openHoliday = () => {
