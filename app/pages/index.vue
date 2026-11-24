@@ -514,7 +514,7 @@ const downloadWord = async () => {
   try {
     for (const g of groups) {
       const blob = await buildDeliveryDoc(g.items)
-      downloadBlob(blob, `${g.name}.docx`)
+      downloadBlob(blob, `${g.name}_${selectedDate.value.slice(2).replaceAll('-', '')}.docx`)
       await new Promise((resolve) => setTimeout(resolve, 400))
     }
   } catch (e: any) {
